@@ -1,4 +1,5 @@
 import { HANDLE_SIZE, SLIDER_TYPE, VALUE_TYPE } from "./enums";
+import { Dispatch, SetStateAction } from "react";
 
 export interface SliderInfo {
     id: string;
@@ -8,5 +9,7 @@ export interface SliderInfo {
     handleSize: HANDLE_SIZE;
     minimumValue?: number;
     maximumValue?: number;
+    initialValue: number;
+    setValue: Dispatch<SetStateAction<number>>;
     discreteValues?: number[];
 }

@@ -13,7 +13,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "uuid": "^10.0.0"
+    "react-tooltip": "^5.26.4"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.5.0",
