@@ -9,9 +9,9 @@ export interface SliderInfo {
     handleSize: HANDLE_SIZE;
     minimumValue?: number;
     maximumValue?: number;
-    initialValue: number;
+    initialValue1: number;
     initialValue2?: number;
-    setValue: Dispatch<SetStateAction<number>>;
+    setValue1: Dispatch<SetStateAction<number>>;
     setValue2?: Dispatch<SetStateAction<number>>;
     discreteValues?: number[];
 }

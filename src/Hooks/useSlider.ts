@@ -4,11 +4,12 @@ import { SLIDER_TYPE, DOT_WIDTH, VALUE_TYPE } from "../Types/enums";
 const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE, discreteValues?: number[]) => {
     const [id, setId] = useState<string>("");
     const [clickPos, setClickPos] = useState<number>(0);
-    const [positionX, setPositionX] = useState<number>(0);
-    const [positionX2, setPositionX2] = useState<number>(0);
-    const [isFocused, setIsFocused] = useState<boolean>(false);
-    const [isFocused2, setIsFocused2] = useState<boolean>(false);
     const [offset, setOffset] = useState<number>(0);
+    const [positionX1, setPositionX1] = useState<number>(0);
+    const [positionX2, setPositionX2] = useState<number>(0);
+    const [isFocused1, setIsFocused1] = useState<boolean>(false);
+    const [isFocused2, setIsFocused2] = useState<boolean>(false);
+
     let dotPositions: number[] = [],
         handlePositions: number[] = [];
 
@@ -27,8 +28,8 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
         });
     }
 
-    const handleDrag = useCallback(() => {
-        let position = positionX;
+    const handleDrag1 = useCallback(() => {
+        let position = positionX1;
         const onMouseMove = (e: MouseEvent) => {
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
                 position = snapToDiscreteValue(handlePositions, e.clientX);
@@ -46,7 +47,7 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
                 position += e.movementX;
                 position = Math.max(offset, Math.min(position, endCondition));
             }
-            setPositionX(position);
+            setPositionX1(position);
         };
 
         const onMouseUp = () => {
@@ -56,19 +57,19 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
 
         document.addEventListener("mousemove", onMouseMove);
         document.addEventListener("mouseup", onMouseUp);
-    }, [positionX, positionX2]);
+    }, [positionX1, positionX2]);
 
     const handleDrag2 = useCallback(() => {
         let position = positionX2;
         const onMouseMove = (e: MouseEvent) => {
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
                 position = snapToDiscreteValue(
-                    handlePositions.filter((value) => value < width - positionX),
+                    handlePositions.filter((value) => value < width - positionX1),
                     width - e.clientX
                 );
             } else {
                 position -= e.movementX;
-                position = Math.max(offset, Math.min(position, width - positionX));
+                position = Math.max(offset, Math.min(position, width - positionX1));
             }
             setPositionX2(position);
         };
@@ -80,41 +81,11 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
 
         document.addEventListener("mousemove", onMouseMove);
         document.addEventListener("mouseup", onMouseUp);
-    }, [positionX2, positionX]);
+    }, [positionX2, positionX1]);
 
-    const snapToDiscreteValue = (positions: number[], currentPosition: number) => {
-        let closestIndex = 0;
-        let smallestDifference = Math.abs(positions[0] - currentPosition);
-
-        for (let i = 1; i < positions.length; i++) {
-            let currentDifference = Math.abs(positions[i] - currentPosition);
-
-            if (currentDifference < smallestDifference) {
-                smallestDifference = currentDifference;
-                closestIndex = i;
-            }
-        }
-        return positions[closestIndex];
-    };
-
-    useEffect(() => {
-        if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-            setPositionX(snapToDiscreteValue(handlePositions, clickPos));
-        } else {
-            setPositionX(Math.max(offset, Math.min(clickPos, width + offset)));
-        }
-    }, [clickPos]);
-
-    const trackOnClick = (e: React.MouseEvent) => {
-        const rect = document.querySelector(`#track-${id}`)?.getBoundingClientRect();
-        if (rect && rect.x <= e.clientX && e.clientX <= rect.x + width) {
-            setClickPos(e.clientX - rect.x + offset);
-        }
-    };
-
-    const handleLeftRightKey = (e: React.KeyboardEvent) => {
-        if (isFocused) {
-            let position = positionX;
+    const handleLeftRightKey1 = (e: React.KeyboardEvent) => {
+        if (isFocused1) {
+            let position = positionX1;
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
                 let endCondition = handlePositions.length - 1;
                 if (valueType === VALUE_TYPE.RANGE) {
@@ -146,7 +117,7 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
                 }
                 position = Math.max(offset, Math.min(position, endCondition));
             }
-            setPositionX(position);
+            setPositionX1(position);
         }
     };
 
@@ -154,7 +125,7 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
         if (isFocused2) {
             let position = positionX2;
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                let posIndex1 = handlePositions.findIndex((value) => value === positionX);
+                let posIndex1 = handlePositions.findIndex((value) => value === positionX1);
                 let posIndex2 = handlePositions.length - 1 - handlePositions.findIndex((value) => value === positionX2);
                 if (
                     !(
@@ -174,27 +145,57 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
                 } else if (e.key === "ArrowRight") {
                     position -= 1;
                 }
-                position = Math.max(offset, Math.min(position, width - positionX));
+                position = Math.max(offset, Math.min(position, width - positionX1));
             }
             setPositionX2(position);
         }
     };
 
+    const snapToDiscreteValue = (positions: number[], currentPosition: number) => {
+        let closestIndex = 0;
+        let smallestDifference = Math.abs(positions[0] - currentPosition);
+
+        for (let i = 1; i < positions.length; i++) {
+            let currentDifference = Math.abs(positions[i] - currentPosition);
+
+            if (currentDifference < smallestDifference) {
+                smallestDifference = currentDifference;
+                closestIndex = i;
+            }
+        }
+        return positions[closestIndex];
+    };
+
+    const trackOnClick = (e: React.MouseEvent) => {
+        const rect = document.querySelector(`#track-${id}`)?.getBoundingClientRect();
+        if (rect && rect.x <= e.clientX && e.clientX <= rect.x + width) {
+            setClickPos(e.clientX - rect.x + offset);
+        }
+    };
+
+    useEffect(() => {
+        if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
+            setPositionX1(snapToDiscreteValue(handlePositions, clickPos));
+        } else {
+            setPositionX1(Math.max(offset, Math.min(clickPos, width + offset)));
+        }
+    }, [clickPos]);
+
     return {
         offset,
-        positionX,
+        positionX1,
         positionX2,
         dotPositions,
         handlePositions,
         setId,
         setOffset,
-        setPositionX,
+        setPositionX1,
         setPositionX2,
-        setIsFocused,
+        setIsFocused1,
         setIsFocused2,
-        handleDrag,
+        handleDrag1,
         handleDrag2,
-        handleLeftRightKey,
+        handleLeftRightKey1,
         handleLeftRightKey2,
         trackOnClick,
     };

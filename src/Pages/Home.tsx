@@ -25,8 +25,8 @@ const Home: FC = () => {
                 handleSize={HANDLE_SIZE.SIZE_24}
                 minimumValue={0}
                 maximumValue={100}
-                initialValue={25}
-                setValue={setOpacity}
+                initialValue1={25}
+                setValue1={setOpacity}
             />
             <div className="headings" style={{ width: "300px" }}>
                 <h1>Exposure</h1>
@@ -40,8 +40,8 @@ const Home: FC = () => {
                 handleSize={HANDLE_SIZE.SIZE_32}
                 minimumValue={0}
                 maximumValue={3}
-                initialValue={1}
-                setValue={setExposure}
+                initialValue1={1}
+                setValue1={setExposure}
             />
             <div className="headings" style={{ width: "400px" }}>
                 <h1>Expense</h1>
@@ -55,8 +55,8 @@ const Home: FC = () => {
                 handleSize={HANDLE_SIZE.SIZE_24}
                 minimumValue={0}
                 maximumValue={200}
-                initialValue={100}
-                setValue={setExpense}
+                initialValue1={100}
+                setValue1={setExpense}
             />
             <div className="headings" style={{ width: "190px" }}>
                 <h1>Time</h1>
@@ -68,8 +68,8 @@ const Home: FC = () => {
                 sliderType={SLIDER_TYPE.DISCRETE}
                 valueType={VALUE_TYPE.SINGLE}
                 handleSize={HANDLE_SIZE.SIZE_24}
-                initialValue={40}
-                setValue={setMinutes}
+                initialValue1={40}
+                setValue1={setMinutes}
                 discreteValues={[0, 10, 40, 45, 50, 55, 60]}
             />
             <div className="headings" style={{ width: "500px" }}>
@@ -86,9 +86,9 @@ const Home: FC = () => {
                 handleSize={HANDLE_SIZE.SIZE_24}
                 minimumValue={0}
                 maximumValue={200}
-                initialValue={40}
+                initialValue1={40}
                 initialValue2={80}
-                setValue={setPriceLow}
+                setValue1={setPriceLow}
                 setValue2={setPriceHigh}
             />
             <div className="headings" style={{ width: "390px" }}>
@@ -103,9 +103,9 @@ const Home: FC = () => {
                 sliderType={SLIDER_TYPE.DISCRETE}
                 valueType={VALUE_TYPE.RANGE}
                 handleSize={HANDLE_SIZE.SIZE_24}
-                initialValue={20}
+                initialValue1={20}
                 initialValue2={45}
-                setValue={setMinutesLow}
+                setValue1={setMinutesLow}
                 setValue2={setMinutesHigh}
                 discreteValues={[0, 10, 20, 30, 40, 45, 50, 55, 60]}
             />
