@@ -1,8 +1,8 @@
-import { FC, KeyboardEvent, MouseEvent, useEffect, useState } from "react";
+import { FC, MouseEvent, useEffect, useState } from "react";
 import { SliderInfo } from "../../Types/interfaces";
 import useSlider from "../../Hooks/useSlider";
 import { SLIDER_TYPE, VALUE_TYPE } from "../../Types/enums";
-import { Tooltip } from "react-tooltip";
+import Handle from "../Handle/Handle";
 import "./Slider.scss";
 
 const Slider: FC<SliderInfo> = ({
@@ -18,6 +18,7 @@ const Slider: FC<SliderInfo> = ({
     setValue1,
     setValue2,
     discreteValues,
+    tooltopSymbol,
 }) => {
     // Custom hook to handle slider logic
     const {
@@ -51,16 +52,26 @@ const Slider: FC<SliderInfo> = ({
     useEffect(() => {
         // Update tooltip and value for single slider
         if (valueType === VALUE_TYPE.SINGLE) {
-            if (sliderType === SLIDER_TYPE.CONTINUOUS && maximumValue !== undefined && minimumValue !== undefined) {
+            if (
+                sliderType === SLIDER_TYPE.CONTINUOUS &&
+                maximumValue !== undefined &&
+                minimumValue !== undefined &&
+                setValue1 !== undefined
+            ) {
                 const value1: number = Number(
                     ((positionX1 - offset) * ((maximumValue - minimumValue) / width)).toFixed(2)
                 );
                 setValue1(value1);
-                setTooltipValue1(value1?.toString());
-            } else if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
+                setTooltipValue1(`${value1?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+            } else if (
+                sliderType === SLIDER_TYPE.DISCRETE &&
+                discreteValues &&
+                discreteValues.length &&
+                setValue1 !== undefined
+            ) {
                 const valueIndex1: number = handlePositions1.findIndex((value: number) => positionX1 === value);
                 setValue1(discreteValues[valueIndex1]);
-                setTooltipValue1(discreteValues[valueIndex1]?.toString());
+                setTooltipValue1(`${discreteValues[valueIndex1]?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
             }
             // Update tooltip and values for range slider
         } else {
@@ -68,6 +79,7 @@ const Slider: FC<SliderInfo> = ({
                 sliderType === SLIDER_TYPE.CONTINUOUS &&
                 maximumValue !== undefined &&
                 minimumValue !== undefined &&
+                setValue1 !== undefined &&
                 setValue2 !== undefined
             ) {
                 const value1: number = Number(
@@ -78,20 +90,21 @@ const Slider: FC<SliderInfo> = ({
                 );
                 setValue1(value1);
                 setValue2(value2);
-                setTooltipValue1(value1?.toString());
-                setTooltipValue2(value2?.toString());
+                setTooltipValue1(`${value1?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+                setTooltipValue2(`${value2?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
             } else if (
                 sliderType === SLIDER_TYPE.DISCRETE &&
                 discreteValues &&
                 discreteValues.length &&
+                setValue1 !== undefined &&
                 setValue2 !== undefined
             ) {
                 const valueIndex1: number = handlePositions1.findIndex((value: number) => positionX1 === value);
                 const valueIndex2: number = handlePositions2.findIndex((value: number) => positionX2 === value);
                 setValue1(discreteValues[valueIndex1]);
                 setValue2(discreteValues[valueIndex2]);
-                setTooltipValue1(discreteValues[valueIndex1]?.toString());
-                setTooltipValue2(discreteValues[valueIndex2]?.toString());
+                setTooltipValue1(`${discreteValues[valueIndex1]?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+                setTooltipValue2(`${discreteValues[valueIndex2]?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
             }
         }
     }, [positionX1, positionX2]);
@@ -132,62 +145,75 @@ const Slider: FC<SliderInfo> = ({
         }
     }, [offset]);
     return (
-        <div
-            className="slider"
-            style={{
-                width: `${width + (valueType === VALUE_TYPE.SINGLE ? handleSize : 2 * handleSize)}px`,
-                height: `${handleSize}px`,
-            }}
-        >
-            <Tooltip id={`tooltip-1-${id}`} />
+        <>
             <div
-                className={`handle handle${handleSize}`}
-                id={`handle-1-${id}`}
-                style={{ left: `${positionX1}px` }}
-                onFocus={() => setIsFocused1(true)}
-                onBlur={() => setIsFocused1(false)}
-                tabIndex={0}
-                onKeyDown={(e: KeyboardEvent) => handleLeftRightKey1(e)}
-                onMouseDown={handleDrag1}
-                data-tooltip-id={`tooltip-1-${id}`}
-                data-tooltip-content={tooltipValue1}
+                className="slider"
+                style={{
+                    width: `${width + (valueType === VALUE_TYPE.SINGLE ? handleSize : 2 * handleSize)}px`,
+                    height: `${handleSize}px`,
+                }}
             >
-                <div className={`subhandle subhandle${handleSize}`} />
+                <Handle
+                    id={`1-${id}`}
+                    position={positionX1}
+                    handleSize={handleSize}
+                    tooltipValue={tooltipValue1}
+                    setIsFocused={setIsFocused1}
+                    handleKeyDown={handleLeftRightKey1}
+                    handleMouseDown={handleDrag1}
+                />
+                <div
+                    className="track"
+                    id={`track-${id}`}
+                    style={{ width: `${width}px` }}
+                    onClick={(e: MouseEvent) => (valueType === VALUE_TYPE.SINGLE ? trackOnClick(e) : "")}
+                >
+                    {sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length
+                        ? dotPositions.map((position: number, index: number) => (
+                              <div key={index} className="dot" style={{ left: `${position}px` }} />
+                          ))
+                        : ""}
+                </div>
+                {valueType === VALUE_TYPE.RANGE ? (
+                    <Handle
+                        id={`2-${id}`}
+                        position={positionX2}
+                        handleSize={handleSize}
+                        tooltipValue={tooltipValue2}
+                        setIsFocused={setIsFocused2}
+                        handleKeyDown={handleLeftRightKey2}
+                        handleMouseDown={handleDrag2}
+                        isRight={true}
+                    />
+                ) : (
+                    ""
+                )}
             </div>
-            <div
-                className="track"
-                id={`track-${id}`}
-                style={{ width: `${width}px` }}
-                onClick={(e: MouseEvent) => (valueType === VALUE_TYPE.SINGLE ? trackOnClick(e) : "")}
-            >
-                {sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length
-                    ? dotPositions.map((position: number, index: number) => (
-                          <div key={index} className="dot" style={{ left: `${position}px` }} />
-                      ))
-                    : ""}
-            </div>
-            {valueType === VALUE_TYPE.RANGE ? (
-                <>
-                    <Tooltip id={`tooltip-2-${id}`} />
-                    <div
-                        className={`handle handle${handleSize}`}
-                        id={`handle-2-${id}`}
-                        style={{ right: `${positionX2}px` }}
-                        onFocus={() => setIsFocused2(true)}
-                        onBlur={() => setIsFocused2(false)}
-                        tabIndex={0}
-                        onKeyDown={(e: KeyboardEvent) => handleLeftRightKey2(e)}
-                        onMouseDown={handleDrag2}
-                        data-tooltip-id={`tooltip-2-${id}`}
-                        data-tooltip-content={tooltipValue2}
-                    >
-                        <div className={`subhandle subhandle${handleSize}`} />
-                    </div>
-                </>
+            {sliderType === SLIDER_TYPE.CONTINUOUS ? (
+                <div
+                    className="belowValues"
+                    style={{
+                        width: `${width}px`,
+                    }}
+                >
+                    <span>{minimumValue}</span>
+                    <span>{maximumValue}</span>
+                </div>
             ) : (
-                ""
+                <div
+                    className="belowValues"
+                    style={{
+                        width: `${width}px`,
+                        justifyContent: "space-around",
+                    }}
+                >
+                    {discreteValues &&
+                        discreteValues.map((value: number, index: number) => {
+                            return <span key={index}>{value}</span>;
+                        })}
+                </div>
             )}
-        </div>
+        </>
     );
 };
 

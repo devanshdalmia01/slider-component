@@ -15,7 +15,7 @@ const Home: FC = () => {
         <>
             <div className="headings" style={{ width: "200px" }}>
                 <h1>Opacity</h1>
-                <h3>{opacity}</h3>
+                <h3>{opacity}%</h3>
             </div>
             <Slider
                 id={"opacity-slider"}
@@ -27,10 +27,11 @@ const Home: FC = () => {
                 maximumValue={100}
                 initialValue1={25}
                 setValue1={setOpacity}
+                tooltopSymbol="%"
             />
             <div className="headings" style={{ width: "300px" }}>
                 <h1>Exposure</h1>
-                <h3>{exposure}</h3>
+                <h3>+{exposure}</h3>
             </div>
             <Slider
                 id={"exposure-slider"}
@@ -45,7 +46,7 @@ const Home: FC = () => {
             />
             <div className="headings" style={{ width: "400px" }}>
                 <h1>Expense</h1>
-                <h3>{expense}</h3>
+                <h3>$ {expense}</h3>
             </div>
             <Slider
                 id={"expense-slider"}
@@ -57,10 +58,11 @@ const Home: FC = () => {
                 maximumValue={200}
                 initialValue1={100}
                 setValue1={setExpense}
+                tooltopSymbol=" $"
             />
             <div className="headings" style={{ width: "190px" }}>
                 <h1>Time</h1>
-                <h3>{minutes}</h3>
+                <h3>{minutes} mins</h3>
             </div>
             <Slider
                 id={"time-slider"}
@@ -75,7 +77,7 @@ const Home: FC = () => {
             <div className="headings" style={{ width: "500px" }}>
                 <h1>Price</h1>
                 <h3>
-                    {priceLow}&nbsp;&nbsp;-&nbsp;&nbsp;{priceHigh}
+                    {priceLow} $&nbsp;&nbsp;-&nbsp;&nbsp;{priceHigh} $
                 </h3>
             </div>
             <Slider
@@ -90,11 +92,12 @@ const Home: FC = () => {
                 initialValue2={80}
                 setValue1={setPriceLow}
                 setValue2={setPriceHigh}
+                tooltopSymbol=" $"
             />
             <div className="headings" style={{ width: "390px" }}>
                 <h1>Time 2</h1>
                 <h3>
-                    {minutesLow}&nbsp;&nbsp;-&nbsp;&nbsp;{minutesHigh}
+                    {minutesLow} mins&nbsp;&nbsp;-&nbsp;&nbsp;{minutesHigh} mins
                 </h3>
             </div>
             <Slider
