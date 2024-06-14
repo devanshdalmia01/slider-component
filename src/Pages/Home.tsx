@@ -107,7 +107,7 @@ const Home: FC = () => {
                 initialValue2={45}
                 setValue1={setMinutesLow}
                 setValue2={setMinutesHigh}
-                discreteValues={[0, 10, 20, 30, 40, 45, 50, 55, 60]}
+                discreteValues={[0, 10, 20, 30, 40, 45, 55, 60]}
             />
         </>
     );

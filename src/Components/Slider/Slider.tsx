@@ -19,12 +19,14 @@ const Slider: FC<SliderInfo> = ({
     setValue2,
     discreteValues,
 }) => {
+    // Custom hook to handle slider logic
     const {
         offset,
         positionX1,
         positionX2,
         dotPositions,
-        handlePositions,
+        handlePositions1,
+        handlePositions2,
         setId,
         setOffset,
         setPositionX1,
@@ -47,18 +49,20 @@ const Slider: FC<SliderInfo> = ({
     }, []);
 
     useEffect(() => {
+        // Update tooltip and value for single slider
         if (valueType === VALUE_TYPE.SINGLE) {
             if (sliderType === SLIDER_TYPE.CONTINUOUS && maximumValue !== undefined && minimumValue !== undefined) {
-                const value: number = Number(
+                const value1: number = Number(
                     ((positionX1 - offset) * ((maximumValue - minimumValue) / width)).toFixed(2)
                 );
-                setValue1(value);
-                setTooltipValue1(value?.toString());
+                setValue1(value1);
+                setTooltipValue1(value1?.toString());
             } else if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                const valueIndex: number = handlePositions.findIndex((value: number) => positionX1 === value);
-                setValue1(discreteValues[valueIndex]);
-                setTooltipValue1(discreteValues[valueIndex]?.toString());
+                const valueIndex1: number = handlePositions1.findIndex((value: number) => positionX1 === value);
+                setValue1(discreteValues[valueIndex1]);
+                setTooltipValue1(discreteValues[valueIndex1]?.toString());
             }
+            // Update tooltip and values for range slider
         } else {
             if (
                 sliderType === SLIDER_TYPE.CONTINUOUS &&
@@ -66,15 +70,15 @@ const Slider: FC<SliderInfo> = ({
                 minimumValue !== undefined &&
                 setValue2 !== undefined
             ) {
-                const value: number = Number(
+                const value1: number = Number(
                     ((positionX1 - offset) * ((maximumValue - minimumValue) / width)).toFixed(2)
                 );
                 const value2: number = Number(
                     ((width - positionX2 + offset) * ((maximumValue - minimumValue) / width)).toFixed(2)
                 );
-                setValue1(value);
+                setValue1(value1);
                 setValue2(value2);
-                setTooltipValue1(value?.toString());
+                setTooltipValue1(value1?.toString());
                 setTooltipValue2(value2?.toString());
             } else if (
                 sliderType === SLIDER_TYPE.DISCRETE &&
@@ -82,28 +86,27 @@ const Slider: FC<SliderInfo> = ({
                 discreteValues.length &&
                 setValue2 !== undefined
             ) {
-                const valueIndex: number = handlePositions.findIndex((value: number) => positionX1 === value);
-                const valueIndex2: number = handlePositions.findIndex(
-                    (value: number) => width - positionX2 + 2 * offset === value
-                );
-                setValue1(discreteValues[valueIndex]);
+                const valueIndex1: number = handlePositions1.findIndex((value: number) => positionX1 === value);
+                const valueIndex2: number = handlePositions2.findIndex((value: number) => positionX2 === value);
+                setValue1(discreteValues[valueIndex1]);
                 setValue2(discreteValues[valueIndex2]);
-                setTooltipValue1(discreteValues[valueIndex]?.toString());
+                setTooltipValue1(discreteValues[valueIndex1]?.toString());
                 setTooltipValue2(discreteValues[valueIndex2]?.toString());
             }
         }
     }, [positionX1, positionX2]);
 
     useEffect(() => {
+        // Set initial positions of handles
         if (valueType === VALUE_TYPE.SINGLE) {
             if (sliderType === SLIDER_TYPE.CONTINUOUS && maximumValue !== undefined && minimumValue !== undefined) {
                 setPositionX1(offset + initialValue1 * (width / (maximumValue - minimumValue)));
             } else if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                let initialValueIndex: number = discreteValues.findIndex((value: number) => initialValue1 === value);
-                if (initialValueIndex === -1) {
-                    initialValueIndex = 0;
+                let initialValueIndex1: number = discreteValues.findIndex((value: number) => initialValue1 === value);
+                if (initialValueIndex1 === -1) {
+                    initialValueIndex1 = 0;
                 }
-                setPositionX1(handlePositions[initialValueIndex]);
+                setPositionX1(handlePositions1[initialValueIndex1]);
             }
         } else {
             if (
@@ -113,18 +116,18 @@ const Slider: FC<SliderInfo> = ({
                 initialValue2 !== undefined
             ) {
                 setPositionX1(offset + initialValue1 * (width / (maximumValue - minimumValue)));
-                setPositionX2(width - (initialValue2 * (width / (maximumValue - minimumValue)) - offset));
+                setPositionX2(width + offset - initialValue2 * (width / (maximumValue - minimumValue)));
             } else if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                let initialValueIndex: number = discreteValues.findIndex((value: number) => initialValue1 === value);
+                let initialValueIndex1: number = discreteValues.findIndex((value: number) => initialValue1 === value);
                 let initialValueIndex2: number = discreteValues.findIndex((value: number) => initialValue2 === value);
-                if (initialValueIndex === -1) {
-                    initialValueIndex = 0;
+                if (initialValueIndex1 === -1) {
+                    initialValueIndex1 = 0;
                 }
                 if (initialValueIndex2 === -1) {
                     initialValueIndex2 = discreteValues.length - 1;
                 }
-                setPositionX1(handlePositions[initialValueIndex]);
-                setPositionX2(handlePositions[discreteValues.length - 1 - initialValueIndex2]);
+                setPositionX1(handlePositions1[initialValueIndex1]);
+                setPositionX2(handlePositions2[initialValueIndex2]);
             }
         }
     }, [offset]);

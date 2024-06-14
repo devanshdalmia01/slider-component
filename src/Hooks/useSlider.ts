@@ -11,42 +11,56 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
     const [isFocused2, setIsFocused2] = useState<boolean>(false);
 
     let dotPositions: number[] = [],
-        handlePositions: number[] = [];
+        handlePositions1: number[] = [],
+        handlePositions2: number[] = [];
 
+    // Calculate positions for discrete values
     if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-        discreteValues.forEach((_, index) => {
+        discreteValues.forEach((_: number, index: number) => {
             let totalSpaceAvailable: number = width - DOT_WIDTH.WIDTH_4 * discreteValues.length;
-            let spaceBetween = totalSpaceAvailable / (2 * discreteValues.length);
+            let spaceBetween: number = totalSpaceAvailable / (2 * discreteValues.length);
+
             dotPositions.push(Number(((2 * index + 1) * spaceBetween).toFixed(0)));
+
             if (index === 0) {
-                handlePositions.push(Number(((2 * index + 1) * spaceBetween).toFixed(0)) + offset + 2);
+                handlePositions1.push(Number(((2 * index + 1) * spaceBetween).toFixed(0)) + offset + 2);
             } else {
-                handlePositions.push(
+                handlePositions1.push(
                     Number(((2 * index + 1) * spaceBetween).toFixed(0)) + offset + 2 + index * DOT_WIDTH.WIDTH_4
                 );
             }
         });
+
+        handlePositions2 = handlePositions1.slice().reverse();
     }
 
+    // Handle drag logic for first handle
     const handleDrag1 = useCallback(() => {
-        let position = positionX1;
+        let position: number = positionX1;
+
         const onMouseMove = (e: MouseEvent) => {
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                position = snapToDiscreteValue(handlePositions, e.clientX);
                 if (valueType === VALUE_TYPE.RANGE) {
                     position = snapToDiscreteValue(
-                        handlePositions.filter((value) => value < width - positionX2),
+                        handlePositions1.filter((value: number) => value <= width - positionX2),
                         e.clientX
                     );
+                } else {
+                    position = snapToDiscreteValue(handlePositions1, e.clientX);
                 }
             } else {
-                let endCondition = width + offset;
+                let endCondition: number;
+
                 if (valueType === VALUE_TYPE.RANGE) {
                     endCondition = width - positionX2;
+                } else {
+                    endCondition = width + offset;
                 }
+
                 position += e.movementX;
                 position = Math.max(offset, Math.min(position, endCondition));
             }
+
             setPositionX1(position);
         };
 
@@ -59,18 +73,21 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
         document.addEventListener("mouseup", onMouseUp);
     }, [positionX1, positionX2]);
 
+    // Handle drag logic for second handle
     const handleDrag2 = useCallback(() => {
-        let position = positionX2;
+        let position: number = positionX2;
+
         const onMouseMove = (e: MouseEvent) => {
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
                 position = snapToDiscreteValue(
-                    handlePositions.filter((value) => value < width - positionX1),
+                    handlePositions2.filter((value: number) => value <= width - positionX1),
                     width - e.clientX
                 );
             } else {
                 position -= e.movementX;
                 position = Math.max(offset, Math.min(position, width - positionX1));
             }
+
             setPositionX2(position);
         };
 
@@ -83,16 +100,24 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
         document.addEventListener("mouseup", onMouseUp);
     }, [positionX2, positionX1]);
 
+    // Handle keyboard input for first handle
     const handleLeftRightKey1 = (e: React.KeyboardEvent) => {
         if (isFocused1) {
-            let position = positionX1;
+            let position: number = positionX1,
+                endCondition: number;
+
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                let endCondition = handlePositions.length - 1;
                 if (valueType === VALUE_TYPE.RANGE) {
                     endCondition =
-                        handlePositions.length - handlePositions.findIndex((value) => value === positionX2) - 2;
+                        handlePositions1.length -
+                        handlePositions1.findIndex((value: number) => value === positionX2) -
+                        2;
+                } else {
+                    endCondition = handlePositions1.length - 1;
                 }
-                let posIndex = handlePositions.findIndex((value) => value === position);
+
+                let posIndex: number = handlePositions1.findIndex((value: number) => value === position);
+
                 if (
                     !(
                         (posIndex === 0 && e.key === "ArrowLeft") ||
@@ -100,9 +125,9 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
                     )
                 ) {
                     if (e.key === "ArrowLeft") {
-                        position = handlePositions[posIndex - 1];
+                        position = handlePositions1[posIndex - 1];
                     } else if (e.key === "ArrowRight") {
-                        position = handlePositions[posIndex + 1];
+                        position = handlePositions1[posIndex + 1];
                     }
                 }
             } else {
@@ -111,32 +136,39 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
                 } else if (e.key === "ArrowRight") {
                     position += 1;
                 }
-                let endCondition = width + offset;
+
                 if (valueType === VALUE_TYPE.RANGE) {
                     endCondition = width - positionX2;
+                } else {
+                    endCondition = width + offset;
                 }
+
                 position = Math.max(offset, Math.min(position, endCondition));
             }
+
             setPositionX1(position);
         }
     };
 
+    // Handle keyboard input for second handle
     const handleLeftRightKey2 = (e: React.KeyboardEvent) => {
         if (isFocused2) {
-            let position = positionX2;
+            let position: number = positionX2;
+
             if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-                let posIndex1 = handlePositions.findIndex((value) => value === positionX1);
-                let posIndex2 = handlePositions.length - 1 - handlePositions.findIndex((value) => value === positionX2);
+                let posIndex1: number = handlePositions1.findIndex((value: number) => value === positionX1);
+                let posIndex2: number = handlePositions2.findIndex((value: number) => value === position);
+
                 if (
                     !(
                         (posIndex2 === posIndex1 + 1 && e.key === "ArrowLeft") ||
-                        (posIndex2 === handlePositions.length - 1 && e.key === "ArrowRight")
+                        (posIndex2 === handlePositions2.length - 1 && e.key === "ArrowRight")
                     )
                 ) {
                     if (e.key === "ArrowLeft") {
-                        position = handlePositions[handlePositions.length - posIndex2];
+                        position = handlePositions2[posIndex2 - 1];
                     } else if (e.key === "ArrowRight") {
-                        position = handlePositions[handlePositions.length - posIndex2 - 2];
+                        position = handlePositions2[posIndex2 + 1];
                     }
                 }
             } else {
@@ -145,29 +177,35 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
                 } else if (e.key === "ArrowRight") {
                     position -= 1;
                 }
+
                 position = Math.max(offset, Math.min(position, width - positionX1));
             }
+
             setPositionX2(position);
         }
     };
 
+    // Snap to the closest discrete value
     const snapToDiscreteValue = (positions: number[], currentPosition: number) => {
-        let closestIndex = 0;
-        let smallestDifference = Math.abs(positions[0] - currentPosition);
+        let closestIndex: number = 0,
+            smallestDifference: number = Math.abs(positions[0] - currentPosition);
 
         for (let i = 1; i < positions.length; i++) {
-            let currentDifference = Math.abs(positions[i] - currentPosition);
+            let currentDifference: number = Math.abs(positions[i] - currentPosition);
 
             if (currentDifference < smallestDifference) {
                 smallestDifference = currentDifference;
                 closestIndex = i;
             }
         }
+
         return positions[closestIndex];
     };
 
+    // Handle track click for single value slider
     const trackOnClick = (e: React.MouseEvent) => {
-        const rect = document.querySelector(`#track-${id}`)?.getBoundingClientRect();
+        const rect: DOMRect | undefined = document.querySelector(`#track-${id}`)?.getBoundingClientRect();
+
         if (rect && rect.x <= e.clientX && e.clientX <= rect.x + width) {
             setClickPos(e.clientX - rect.x + offset);
         }
@@ -175,7 +213,7 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
 
     useEffect(() => {
         if (sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length) {
-            setPositionX1(snapToDiscreteValue(handlePositions, clickPos));
+            setPositionX1(snapToDiscreteValue(handlePositions1, clickPos));
         } else {
             setPositionX1(Math.max(offset, Math.min(clickPos, width + offset)));
         }
@@ -186,7 +224,8 @@ const useSlider = (width: number, sliderType: SLIDER_TYPE, valueType: VALUE_TYPE
         positionX1,
         positionX2,
         dotPositions,
-        handlePositions,
+        handlePositions1,
+        handlePositions2,
         setId,
         setOffset,
         setPositionX1,
