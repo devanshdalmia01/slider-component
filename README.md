@@ -15,10 +15,6 @@ The Input Slider Component is a React-based UI component designed to provide an 
 -   **Keyboard and Mouse Support**: Handles both mouse drag and keyboard arrow key adjustments.
 -   **Stylish Design**: Customizable styles with SCSS.
 
-# Special Features
-
--   **Sorting, Filtering**: You can choose to view your files and folders the way you want. Complete control. All options are available to work together
-
 # Table of Contents
 
 1. [Demo](#demo)
