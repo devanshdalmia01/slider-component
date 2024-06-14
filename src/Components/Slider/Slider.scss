@@ -3,7 +3,6 @@
 }
 
 $primary-color: #47b647;
-$secondary-color: white;
 $tooltip-bg: #0f0f0f;
 $tooltip-color: #fcfcfc;
 $dot-size: 4px;
@@ -25,7 +24,6 @@ $track-height: 8px;
 }
 
 .track {
-    background-color: $primary-color;
     height: $track-height;
     border-radius: 99px;
     align-self: center;
@@ -38,7 +36,6 @@ $track-height: 8px;
     width: $dot-size;
     height: $dot-size;
     border-radius: 50%;
-    background-color: $secondary-color;
     position: relative;
     z-index: -1;
 }

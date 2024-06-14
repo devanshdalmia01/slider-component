@@ -62,7 +62,7 @@ const Slider: FC<SliderInfo> = ({
                     ((positionX1 - offset) * ((maximumValue - minimumValue) / width)).toFixed(2)
                 );
                 setValue1(value1);
-                setTooltipValue1(`${value1?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+                setTooltipValue1(value1?.toString());
             } else if (
                 sliderType === SLIDER_TYPE.DISCRETE &&
                 discreteValues &&
@@ -71,7 +71,7 @@ const Slider: FC<SliderInfo> = ({
             ) {
                 const valueIndex1: number = handlePositions1.findIndex((value: number) => positionX1 === value);
                 setValue1(discreteValues[valueIndex1]);
-                setTooltipValue1(`${discreteValues[valueIndex1]?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+                setTooltipValue1(discreteValues[valueIndex1]?.toString());
             }
             // Update tooltip and values for range slider
         } else {
@@ -90,8 +90,8 @@ const Slider: FC<SliderInfo> = ({
                 );
                 setValue1(value1);
                 setValue2(value2);
-                setTooltipValue1(`${value1?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
-                setTooltipValue2(`${value2?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+                setTooltipValue1(value1?.toString());
+                setTooltipValue2(value2?.toString());
             } else if (
                 sliderType === SLIDER_TYPE.DISCRETE &&
                 discreteValues &&
@@ -103,8 +103,8 @@ const Slider: FC<SliderInfo> = ({
                 const valueIndex2: number = handlePositions2.findIndex((value: number) => positionX2 === value);
                 setValue1(discreteValues[valueIndex1]);
                 setValue2(discreteValues[valueIndex2]);
-                setTooltipValue1(`${discreteValues[valueIndex1]?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
-                setTooltipValue2(`${discreteValues[valueIndex2]?.toString()}${tooltopSymbol ? tooltopSymbol : ""}`);
+                setTooltipValue1(discreteValues[valueIndex1]?.toString());
+                setTooltipValue2(discreteValues[valueIndex2]?.toString());
             }
         }
     }, [positionX1, positionX2]);
@@ -157,7 +157,7 @@ const Slider: FC<SliderInfo> = ({
                     id={`1-${id}`}
                     position={positionX1}
                     handleSize={handleSize}
-                    tooltipValue={tooltipValue1}
+                    tooltipValue={`${tooltipValue1}${tooltopSymbol ? tooltopSymbol : ""}`}
                     setIsFocused={setIsFocused1}
                     handleKeyDown={handleLeftRightKey1}
                     handleMouseDown={handleDrag1}
@@ -165,12 +165,28 @@ const Slider: FC<SliderInfo> = ({
                 <div
                     className="track"
                     id={`track-${id}`}
-                    style={{ width: `${width}px` }}
+                    style={{
+                        width: `${width}px`,
+                        background:
+                            valueType === VALUE_TYPE.RANGE
+                                ? `linear-gradient(to right, #f2f3f5 0px, #f2f3f5 ${positionX1}px, #47b647 ${positionX1}px ${width - positionX2}px, #f2f3f5 ${width - positionX2}px 100%)`
+                                : `linear-gradient(to right, #47b647 ${(positionX1 / width) * 100}%, #f2f3f5 ${(positionX1 / width) * 100}%)`,
+                    }}
                     onClick={(e: MouseEvent) => (valueType === VALUE_TYPE.SINGLE ? trackOnClick(e) : "")}
                 >
                     {sliderType === SLIDER_TYPE.DISCRETE && discreteValues && discreteValues.length
                         ? dotPositions.map((position: number, index: number) => (
-                              <div key={index} className="dot" style={{ left: `${position}px` }} />
+                              <div
+                                  key={index}
+                                  className="dot"
+                                  style={{
+                                      left: `${position}px`,
+                                      backgroundColor:
+                                          valueType === VALUE_TYPE.RANGE
+                                              ? `${position < positionX1 - offset || position > width - positionX2 + offset ? "#47b647" : "white"}`
+                                              : `${position < positionX1 - offset ? "white" : "#47b647"}`,
+                                  }}
+                              />
                           ))
                         : ""}
                 </div>
@@ -179,7 +195,7 @@ const Slider: FC<SliderInfo> = ({
                         id={`2-${id}`}
                         position={positionX2}
                         handleSize={handleSize}
-                        tooltipValue={tooltipValue2}
+                        tooltipValue={`${tooltipValue2}${tooltopSymbol ? tooltopSymbol : ""}`}
                         setIsFocused={setIsFocused2}
                         handleKeyDown={handleLeftRightKey2}
                         handleMouseDown={handleDrag2}
@@ -196,8 +212,23 @@ const Slider: FC<SliderInfo> = ({
                         width: `${width}px`,
                     }}
                 >
-                    <span>{minimumValue}</span>
-                    <span>{maximumValue}</span>
+                    <span
+                        style={{
+                            color: `${minimumValue === Number(tooltipValue1) ? "#47b647" : "black"}`,
+                        }}
+                    >
+                        {minimumValue}
+                    </span>
+                    <span
+                        style={{
+                            color:
+                                valueType === VALUE_TYPE.RANGE
+                                    ? `${maximumValue === Number(tooltipValue2) ? "#47b647" : "black"}`
+                                    : `${maximumValue === Number(tooltipValue1) ? "#47b647" : "black"}`,
+                        }}
+                    >
+                        {maximumValue}
+                    </span>
                 </div>
             ) : (
                 <div
@@ -209,7 +240,23 @@ const Slider: FC<SliderInfo> = ({
                 >
                     {discreteValues &&
                         discreteValues.map((value: number, index: number) => {
-                            return <span key={index}>{value}</span>;
+                            return (
+                                <span
+                                    key={index}
+                                    style={{
+                                        color:
+                                            valueType === VALUE_TYPE.RANGE
+                                                ? `${
+                                                      value === Number(tooltipValue1) || value === Number(tooltipValue2)
+                                                          ? "#47b647"
+                                                          : "black"
+                                                  }`
+                                                : `${value === Number(tooltipValue1) ? "#47b647" : "black"}`,
+                                    }}
+                                >
+                                    {value}
+                                </span>
+                            );
                         })}
                 </div>
             )}
